@@ -16,6 +16,7 @@ env:
   FLUTTER_VERSION: "3.24.5"
   VCPKG_COMMIT_ID: "120deac3062162151622ca4860575a33844ba10b"
   VERSION: "1.4.6"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-RustDeskTempTopMostWindow:
@@ -36,7 +37,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Export GitHub Actions cache environment variables
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
@@ -48,7 +49,7 @@ jobs:
           submodules: recursive
 
       - name: Restore bridge files
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v4
         with:
           name: bridge-artifact
           path: ./
@@ -70,14 +71,17 @@ jobs:
           flutter precache --windows
           Invoke-WebRequest -Uri https://github.com/rustdesk/engine/releases/download/main/windows-x64-release.zip -OutFile windows-x64-release.zip
           Expand-Archive -Path windows-x64-release.zip -DestinationPath windows-x64-release
-          mv -Force windows-x64-release/*  C:/hostedtoolcache/windows/flutter/stable-${{ env.FLUTTER_VERSION }}-x64/bin/cache/artifacts/engine/windows-x64-release/
+          mv -Force windows-x64-release/* C:/hostedtoolcache/windows/flutter/stable-${{ env.FLUTTER_VERSION }}-x64/bin/cache/artifacts/engine/windows-x64-release/
+        shell: pwsh
 
       - name: Patch flutter
         shell: bash
         run: |
           cp .github/patches/flutter_3.24.4_dropdown_menu_enableFilter.diff $(dirname $(dirname $(which flutter)))
           cd $(dirname $(dirname $(which flutter)))
-          [[ "3.24.5" == ${{env.FLUTTER_VERSION}} ]] && git apply flutter_3.24.4_dropdown_menu_enableFilter.diff
+          if [ "${{env.FLUTTER_VERSION}}" = "3.24.5" ]; then
+            git apply flutter_3.24.4_dropdown_menu_enableFilter.diff
+          fi
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -101,92 +105,141 @@ jobs:
         env:
           VCPKG_DEFAULT_HOST_TRIPLET: x64-windows-static
         run: |
-          if ! $VCPKG_ROOT/vcpkg install --triplet x64-windows-static --x-install-root="$VCPKG_ROOT/installed"; then
-            find "${VCPKG_ROOT}/" -name "*.log" | while read -r _1; do
-              echo "$_1:"
-              echo "======"
-              cat "$_1"
-              echo "======"
-              echo ""
-            done
+          $VCPKG_ROOT/vcpkg install --triplet x64-windows-static --x-install-root="$VCPKG_ROOT/installed"
+          if ($LASTEXITCODE -ne 0) {
+            Get-ChildItem -Path "${env:VCPKG_ROOT}" -Filter "*.log" -Recurse | ForEach-Object {
+              Write-Host "=== Content of $($_.FullName) ==="
+              Get-Content $_.FullName
+              Write-Host "=== End of $($_.FullName) ==="
+            }
             exit 1
-          fi
-          head -n 100 "${VCPKG_ROOT}/buildtrees/ffmpeg/build-x64-windows-static-rel-out.log" || true
-        shell: bash
+          }
+          if (Test-Path "${env:VCPKG_ROOT}/buildtrees/ffmpeg/build-x64-windows-static-rel-out.log") {
+            Get-Content "${env:VCPKG_ROOT}/buildtrees/ffmpeg/build-x64-windows-static-rel-out.log" -Head 100
+          }
+        shell: pwsh
 
       - name: Build rustdesk
+        id: build-rustdesk
         run: |
           python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Build failed!"
+            exit 1
+          }
           mv ./flutter/build/windows/x64/runner/Release ./rustdesk
+          Write-Host "Build completed successfully"
+          Write-Host "Listing rustdesk directory:"
+          Get-ChildItem ./rustdesk
+        shell: pwsh
 
+      - name: Download usbmmidd_v2
+        run: |
           Invoke-WebRequest -Uri https://github.com/rustdesk-org/rdev/releases/download/usbmmidd_v2/usbmmidd_v2.zip -OutFile usbmmidd_v2.zip
           Expand-Archive usbmmidd_v2.zip -DestinationPath .
-          Remove-Item -Path usbmmidd_v2\Win32 -Recurse
-          Remove-Item -Path "usbmmidd_v2\deviceinstaller64.exe", "usbmmidd_v2\deviceinstaller.exe", "usbmmidd_v2\usbmmidd.bat"
+          Remove-Item -Path usbmmidd_v2\Win32 -Recurse -ErrorAction SilentlyContinue
+          Remove-Item -Path "usbmmidd_v2\deviceinstaller64.exe", "usbmmidd_v2\deviceinstaller.exe", "usbmmidd_v2\usbmmidd.bat" -ErrorAction SilentlyContinue
           mv -Force .\usbmmidd_v2 ./rustdesk
+        shell: pwsh
 
+      - name: Download printer driver
+        continue-on-error: true
+        run: |
           try {
             Invoke-WebRequest -Uri https://github.com/rustdesk/hbb_common/releases/download/driver/rustdesk_printer_driver_v4-1.4.zip -OutFile rustdesk_printer_driver_v4-1.4.zip
             Invoke-WebRequest -Uri https://github.com/rustdesk/hbb_common/releases/download/driver/printer_driver_adapter.zip -OutFile printer_driver_adapter.zip
             Invoke-WebRequest -Uri https://github.com/rustdesk/hbb_common/releases/download/driver/sha256sums -OutFile sha256sums
 
             $checksum_driver = (Select-String -Path .\sha256sums -Pattern '^([a-fA-F0-9]{64}) \*rustdesk_printer_driver_v4-1.4\.zip$').Matches.Groups[1].Value
-            $downloadsum_driver = Get-FileHash -Path rustdesk_printer_driver_v4-1.4.zip -Algorithm SHA256
+            $downloadsum_driver = (Get-FileHash -Path rustdesk_printer_driver_v4-1.4.zip -Algorithm SHA256).Hash
             $checksum_adapter = (Select-String -Path .\sha256sums -Pattern '^([a-fA-F0-9]{64}) \*printer_driver_adapter\.zip$').Matches.Groups[1].Value
-            $downloadsum_adapter = Get-FileHash -Path printer_driver_adapter.zip -Algorithm SHA256
-            if ($checksum_driver -eq $downloadsum_driver.Hash -and $checksum_adapter -eq $downloadsum_adapter.Hash) {
-                Write-Output "rustdesk_printer_driver_v4-1.4, checksums match, extract the file."
+            $downloadsum_adapter = (Get-FileHash -Path printer_driver_adapter.zip -Algorithm SHA256).Hash
+            
+            if ($checksum_driver -eq $downloadsum_driver -and $checksum_adapter -eq $downloadsum_adapter) {
+                Write-Output "Checksums match, extracting printer driver."
                 Expand-Archive rustdesk_printer_driver_v4-1.4.zip -DestinationPath .
-                mkdir ./rustdesk/drivers
+                mkdir ./rustdesk/drivers -Force
                 mv -Force .\rustdesk_printer_driver_v4-1.4 ./rustdesk/drivers/RustDeskPrinterDriver
                 Expand-Archive printer_driver_adapter.zip -DestinationPath .
                 mv -Force .\printer_driver_adapter.dll ./rustdesk
-            } elseif ($checksum_driver -ne $downloadsum_driver.Hash) {
-                Write-Output "rustdesk_printer_driver_v4-1.4, checksums do not match, ignore the file."
             } else {
-                Write-Output "printer_driver_adapter.dll, checksums do not match, ignore the file."
+                Write-Output "Checksums do not match, skipping printer driver."
             }
           } catch {
-              Write-Host "Ignore the printer driver error."
+              Write-Host "Failed to download printer driver, skipping."
           }
+        shell: pwsh
 
       - name: Download RustDeskTempTopMostWindow artifacts
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v4
         with:
           name: topmostwindow-artifacts
           path: "./rustdesk"
 
-      - name: Upload unsigned artifacts
-        uses: actions/upload-artifact@master
+      - name: List rustdesk directory before upload
+        run: |
+          Write-Host "Listing rustdesk directory contents:"
+          Get-ChildItem ./rustdesk -Recurse
+          Write-Host "Total files: $(Get-ChildItem ./rustdesk -Recurse | Measure-Object).Count"
+        shell: pwsh
+
+      - name: Upload portable artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: rustdesk-windows-x64
+          name: rustdesk-windows-x64-portable
           path: rustdesk
+          retention-days: 7
 
       - name: Build self-extracted executable
-        shell: bash
+        id: build-portable-packer
         run: |
           sed -i '/dpiAware/d' res/manifest.xml
-          pushd ./libs/portable
+          cd ./libs/portable
           pip3 install -r requirements.txt
           python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/rustdesk.exe
-          popd
+          cd ../..
           mkdir -p ./SignOutput
-          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/rustdesk-${{ env.VERSION }}-x64.exe
+          if (Test-Path ./target/release/rustdesk-portable-packer.exe) {
+            mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/rustdesk-${{ env.VERSION }}-x64.exe
+            Write-Host "Self-extracted executable created successfully"
+          } else {
+            Write-Host "ERROR: rustdesk-portable-packer.exe not found!"
+            exit 1
+          }
+        shell: pwsh
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
       - name: Build msi
+        id: build-msi
         run: |
-          pushd ./res/msi
+          cd ./res/msi
           python preprocess.py --arp -d ../../rustdesk
           nuget restore msi.sln
           msbuild msi.sln -p:Configuration=Release -p:Platform=x64 /p:TargetVersion=Windows10
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "MSBuild failed!"
+            exit 1
+          }
           mv ./Package/bin/x64/Release/en-us/Package.msi ../../SignOutput/rustdesk-${{ env.VERSION }}-x64.msi
-          sha256sum ../../SignOutput/rustdesk-*.msi
+          Write-Host "MSI created successfully"
+        shell: pwsh
 
-      - name: Upload final artifacts
-        uses: actions/upload-artifact@master
+      - name: Verify output files
+        run: |
+          Write-Host "Listing SignOutput directory:"
+          Get-ChildItem ./SignOutput
+          Write-Host ""
+          Write-Host "File sizes:"
+          Get-ChildItem ./SignOutput | ForEach-Object {
+            Write-Host "$($_.Name): $([math]::Round($_.Length / 1MB, 2)) MB"
+          }
+        shell: pwsh
+
+      - name: Upload final installers
+        uses: actions/upload-artifact@v4
         with:
           name: rustdesk-windows-installers
           path: SignOutput
+          retention-days: 7
