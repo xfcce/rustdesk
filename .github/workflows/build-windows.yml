@@ -183,13 +183,6 @@ jobs:
           Write-Host "Total files: $(Get-ChildItem ./rustdesk -Recurse | Measure-Object).Count"
         shell: pwsh
 
-      - name: Upload portable artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: rustdesk-windows-x64-portable
-          path: rustdesk
-          retention-days: 7
-
       - name: Build self-extracted executable
         id: build-portable-packer
         run: |
@@ -243,3 +236,13 @@ jobs:
           name: rustdesk-windows-installers
           path: SignOutput
           retention-days: 7
+
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: windows-build-${{ github.run_id }}
+          name: Windows Build ${{ github.run_id }}
+          prerelease: true
+          files: |
+            ./SignOutput/rustdesk-${{ env.VERSION }}-x64.exe
+            ./SignOutput/rustdesk-${{ env.VERSION }}-x64.msi
