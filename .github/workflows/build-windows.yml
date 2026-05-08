@@ -49,13 +49,13 @@ jobs:
           submodules: recursive
 
       - name: Restore bridge files
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4
         with:
           name: bridge-artifact
           path: ./
 
       - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v1.15.0
+        uses: KyleMayes/install-llvm-action@v1
         with:
           version: ${{ env.LLVM_VERSION }}
 
@@ -171,7 +171,7 @@ jobs:
         shell: pwsh
 
       - name: Download RustDeskTempTopMostWindow artifacts
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4
         with:
           name: topmostwindow-artifacts
           path: "./rustdesk"
@@ -184,7 +184,7 @@ jobs:
         shell: pwsh
 
       - name: Upload portable artifacts
-        uses: actions/upload-artifact@v4.1.8
+        uses: actions/upload-artifact@v4
         with:
           name: rustdesk-windows-x64-portable
           path: rustdesk
@@ -238,7 +238,7 @@ jobs:
         shell: pwsh
 
       - name: Upload final installers
-        uses: actions/upload-artifact@v4.1.8
+        uses: actions/upload-artifact@v4
         with:
           name: rustdesk-windows-installers
           path: SignOutput
