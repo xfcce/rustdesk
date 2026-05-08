@@ -10,6 +10,7 @@ env:
   FLUTTER_VERSION: "3.22.3"
   FLUTTER_RUST_BRIDGE_VERSION: "1.80.1"
   RUST_VERSION: "1.75" # https://github.com/rustdesk/rustdesk/discussions/7503
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   generate_bridge:
@@ -25,7 +26,7 @@ jobs:
             }
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           submodules: recursive
 
