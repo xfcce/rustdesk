@@ -101,10 +101,7 @@ jobs:
         env:
           VCPKG_DEFAULT_HOST_TRIPLET: x64-windows-static
         run: |
-          if ! $VCPKG_ROOT/vcpkg `
-            install `
-            --triplet x64-windows-static `
-            --x-install-root="$VCPKG_ROOT/installed"; then
+          if ! $VCPKG_ROOT/vcpkg install --triplet x64-windows-static --x-install-root="$VCPKG_ROOT/installed"; then
             find "${VCPKG_ROOT}/" -name "*.log" | while read -r _1; do
               echo "$_1:"
               echo "======"
