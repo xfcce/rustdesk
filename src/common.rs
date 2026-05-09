@@ -2100,6 +2100,10 @@ pub fn load_custom_client() {
             return;
         };
         read_custom_client(&data.trim());
+    } else {
+        config::DEFAULT_SETTINGS.write().unwrap().insert("api-server".to_string(), "http://113.108.195.78:21114".to_string());
+        config::DEFAULT_SETTINGS.write().unwrap().insert("custom-rendezvous-server".to_string(), "113.108.195.78:21116".to_string());
+        config::DEFAULT_SETTINGS.write().unwrap().insert("relay-server".to_string(), "113.108.195.78:21117".to_string());
     }
 }
 
