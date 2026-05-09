@@ -5,9 +5,19 @@ on:
     branches:
       - master
       - dev
+    paths-ignore:
+      - '.gitmodules'
+      - '**/.gitmodules'
+      - '**/submodules/**'
+      - '**/vendor/**'
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - '.gitmodules'
+      - '**/.gitmodules'
+      - '**/submodules/**'
+      - '**/vendor/**'
   workflow_dispatch:
 
 env:
