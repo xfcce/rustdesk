@@ -1,23 +1,6 @@
 name: Build Windows Version
 
 on:
-  push:
-    branches:
-      - master
-      - dev
-    paths-ignore:
-      - '.gitmodules'
-      - '**/.gitmodules'
-      - '**/submodules/**'
-      - '**/vendor/**'
-  pull_request:
-    branches:
-      - master
-    paths-ignore:
-      - '.gitmodules'
-      - '**/.gitmodules'
-      - '**/submodules/**'
-      - '**/vendor/**'
   workflow_dispatch:
 
 env:
@@ -250,9 +233,10 @@ jobs:
       - name: Publish to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: windows-build-${{ github.run_id }}
-          name: Windows Build ${{ github.run_id }}
-          prerelease: true
+          tag_name: v${{ env.VERSION }}-${{ github.run_id }}
+          name: RustDesk v${{ env.VERSION }} (Windows)
+          prerelease: false
+          generate_release_notes: true
           files: |
             ./SignOutput/rustdesk-${{ env.VERSION }}-x64.exe
             ./SignOutput/rustdesk-${{ env.VERSION }}-x64.msi

@@ -1,0 +1,62 @@
+name: Build All Platforms
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+    paths-ignore:
+      - '.gitmodules'
+      - '**/.gitmodules'
+      - '**/submodules/**'
+      - '**/vendor/**'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '.gitmodules'
+      - '**/.gitmodules'
+      - '**/submodules/**'
+      - '**/vendor/**'
+  workflow_dispatch:
+
+env:
+  VERSION: "1.4.6"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-all-platforms:
+    uses: ./.github/workflows/flutter-build.yml
+    secrets: inherit
+    with:
+      upload-artifact: true
+      upload-tag: "v${{ env.VERSION }}-${{ github.run_id }}"
+
+  publish-release:
+    needs: [build-all-platforms]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: List downloaded artifacts
+        run: |
+          find ./artifacts -type f -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.apk" | head -20
+
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}-${{ github.run_id }}
+          name: RustDesk v${{ env.VERSION }}
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            ./artifacts/**/*.exe
+            ./artifacts/**/*.msi
+            ./artifacts/**/*.dmg
+            ./artifacts/**/*.apk
