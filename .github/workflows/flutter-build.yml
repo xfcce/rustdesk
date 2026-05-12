@@ -94,20 +94,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Restore bridge files
         uses: actions/download-artifact@master
@@ -332,20 +322,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Install LLVM and Clang
         uses: rustdesk-org/install-llvm-action-32bit@master
@@ -499,20 +479,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -641,20 +611,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Import the codesign cert
         if: env.MACOS_P12_BASE64 != null
@@ -972,20 +932,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -1262,20 +1212,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -1444,20 +1384,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Set Swap Space
         if: ${{ matrix.job.arch == 'x86_64' }}
@@ -1791,20 +1721,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Modify vcpkg.json for armv7
         if: matrix.job.vcpkg-triplet == 'arm-linux'
@@ -2010,20 +1930,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Download Binary
         uses: actions/download-artifact@master
@@ -2100,20 +2010,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Download Binary
         uses: actions/download-artifact@master
@@ -2178,20 +2078,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Prepare env
         run: |

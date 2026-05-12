@@ -32,20 +32,10 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          if ($IsWindows) {
-            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
-              $file = $_.FullName
-              $acl = Get-Acl $file
-              $acl.SetAccessRuleProtection($false, $false)
-              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
-              $acl.AddAccessRule($rule)
-              Set-Acl $file $acl
-            }
-          } else {
-            chmod +x ./build.py
-            chmod +x ./flutter/build_android_deps.sh
-            find . -name "*.sh" -exec chmod +x {} \;
-          }
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+        shell: bash
 
       - name: Install prerequisites
         run: |
