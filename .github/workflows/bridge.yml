@@ -32,9 +32,20 @@ jobs:
 
       - name: Fix script permissions
         run: |
-          chmod +x ./build.py
-          chmod +x ./flutter/build_android_deps.sh
-          find . -name "*.sh" -exec chmod +x {} \;
+          if ($IsWindows) {
+            Get-ChildItem -Path . -Recurse -Filter "*.sh" | ForEach-Object {
+              $file = $_.FullName
+              $acl = Get-Acl $file
+              $acl.SetAccessRuleProtection($false, $false)
+              $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ExecuteFile", "Allow")
+              $acl.AddAccessRule($rule)
+              Set-Acl $file $acl
+            }
+          } else {
+            chmod +x ./build.py
+            chmod +x ./flutter/build_android_deps.sh
+            find . -name "*.sh" -exec chmod +x {} \;
+          }
 
       - name: Install prerequisites
         run: |
@@ -85,7 +96,8 @@ jobs:
         run: |
           cargo install cargo-expand --version ${{ env.CARGO_EXPAND_VERSION }} --locked
           cargo install flutter_rust_bridge_codegen --version ${{ env.FLUTTER_RUST_BRIDGE_VERSION }} --features "uuid" --locked
-          pushd flutter && flutter pub get && popd
+          rm -rf ~/.pub-cache
+          pushd flutter && flutter pub get --no-precompile && popd
 
       - name: Run flutter rust bridge
         run: |
