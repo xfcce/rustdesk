@@ -30,6 +30,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Install prerequisites
         run: |
           sudo apt-get install ca-certificates -y

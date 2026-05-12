@@ -92,6 +92,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Restore bridge files
         uses: actions/download-artifact@master
         with:
@@ -313,6 +319,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Install LLVM and Clang
         uses: rustdesk-org/install-llvm-action-32bit@master
         with:
@@ -463,6 +475,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
@@ -588,6 +606,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Import the codesign cert
         if: env.MACOS_P12_BASE64 != null
         uses: apple-actions/import-codesign-certs@v1
@@ -712,6 +736,7 @@ jobs:
 
       - name: Build rustdesk
         run: |
+          chmod +x ./build.py
           if [ "${{ matrix.job.target }}" = "aarch64-apple-darwin" ]; then
             MIN_MACOS_VERSION="12.3"
             sed -i -e "s/MACOSX_DEPLOYMENT_TARGET\=[0-9]*.[0-9]*/MACOSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION}/" build.py
@@ -901,6 +926,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
@@ -927,6 +958,7 @@ jobs:
 
       - name: Install vcpkg dependencies
         run: |
+          chmod +x ./flutter/build_android_deps.sh
           case ${{ matrix.job.target }} in
             aarch64-linux-android)
               ANDROID_TARGET=arm64-v8a
@@ -1173,6 +1205,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
@@ -1337,6 +1375,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
 
       - name: Set Swap Space
         if: ${{ matrix.job.arch == 'x86_64' }}
@@ -1668,6 +1712,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Modify vcpkg.json for armv7
         if: matrix.job.vcpkg-triplet == 'arm-linux'
         run: |
@@ -1870,6 +1920,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Download Binary
         uses: actions/download-artifact@master
         with:
@@ -1943,6 +1999,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
+
       - name: Download Binary
         uses: actions/download-artifact@master
         with:
@@ -2003,6 +2065,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Fix script permissions
+        run: |
+          chmod +x ./build.py
+          chmod +x ./flutter/build_android_deps.sh
+          find . -name "*.sh" -exec chmod +x {} \;
 
       - name: Prepare env
         run: |
